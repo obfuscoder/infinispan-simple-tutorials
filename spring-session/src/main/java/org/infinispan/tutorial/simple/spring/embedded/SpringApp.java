@@ -2,9 +2,17 @@ package org.infinispan.tutorial.simple.spring.embedded;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.global.GlobalConfiguration;
+import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.spring.provider.SpringEmbeddedCacheManager;
 import org.infinispan.spring.provider.SpringEmbeddedCacheManagerFactoryBean;
 import org.infinispan.spring.session.configuration.EnableInfinispanEmbeddedHttpSession;
@@ -21,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @EnableInfinispanEmbeddedHttpSession
 public class SpringApp {
+   private static final String CACHE_NAME = "sessions";
 
    /**
     * Create Spring Cache Factory Bean.
@@ -28,6 +37,23 @@ public class SpringApp {
    @Bean
    public SpringEmbeddedCacheManagerFactoryBean springCache() {
       return new SpringEmbeddedCacheManagerFactoryBean();
+   }
+
+   @Bean
+   EmbeddedCacheManager embeddedCacheManager() {
+      GlobalConfiguration globalConfiguration = new GlobalConfigurationBuilder()
+              .transport()
+              .defaultTransport()
+              .clusterName("test-cluster")
+              .addProperty("configurationFile", "jgroups-tcp.xml")
+              .machineId("machine1")
+              .build();
+
+      Configuration configuration = new ConfigurationBuilder()
+              .clustering()
+              .cacheMode(CacheMode.REPL_SYNC)
+              .build();
+      return new DefaultCacheManager(globalConfiguration, configuration);
    }
 
    @RestController
@@ -42,7 +68,9 @@ public class SpringApp {
          String sessionId = request.getSession(true).getId();
          result.put("created:", sessionId);
          // By default Infinispan integration for Spring Session will use 'sessions' cache.
-         result.put("active:", cacheManager.getCache("sessions").getNativeCache().keySet().toString());
+         result.put("active:", String.valueOf(cacheManager.getCache("sessions").getNativeCache().size()));
+         EmbeddedCacheManager nativeCacheManager = cacheManager.getNativeCacheManager();
+         result.put("members:", nativeCacheManager.getMembers().stream().map(address -> address.toString()).collect(Collectors.joining()));
          return result;
       }
    }

@@ -1,7 +1,7 @@
 <config xmlns="urn:org:jgroups"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/jgroups-4.0.xsd">
-   <TCP bind_addr="${jgroups.tcp.address:10.20.32.39}"
+   <TCP bind_addr="SITE_LOCAL"
         bind_port="${jgroups.tcp.port:7800}"
         enable_diagnostics="false"
         thread_naming_pattern="pl"
@@ -13,8 +13,8 @@
         thread_pool.max_threads="${jgroups.thread_pool.max_threads:200}"
         thread_pool.keep_alive_time="60000"
    />
-   <MPING bind_addr="${jgroups.tcp.address:10.20.32.39}"
-          mcast_addr="${jgroups.mping.mcast_addr:239.42.13.37}"
+   <MPING bind_addr="SITE_LOCAL"
+          mcast_addr="239.42.13.37"
           mcast_port="${jgroups.mping.mcast_port:43366}"
           ip_ttl="${jgroups.udp.ip_ttl:2}" 
    />

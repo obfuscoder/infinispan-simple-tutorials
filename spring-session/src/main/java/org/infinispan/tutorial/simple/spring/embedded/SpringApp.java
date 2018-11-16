@@ -44,7 +44,9 @@ public class SpringApp {
     @Bean
     EmbeddedCacheManager embeddedCacheManager() {
         GlobalConfiguration globalConfiguration = new GlobalConfigurationBuilder()
-                .clusteredDefault()
+                .transport().defaultTransport()
+                .clusterName("netid")
+                .addProperty("configurationFile", "jgroups-tcp.xml")
                 .build();
         Configuration configuration = new ConfigurationBuilder()
                 .clustering()

@@ -10,14 +10,12 @@ import org.infinispan.commons.api.BasicCache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.manager.DefaultCacheManager;
-import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.spring.provider.SpringCache;
 import org.infinispan.spring.provider.SpringEmbeddedCacheManager;
-import org.infinispan.spring.provider.SpringEmbeddedCacheManagerFactoryBean;
 import org.infinispan.spring.session.configuration.EnableInfinispanEmbeddedHttpSession;
+import org.infinispan.spring.starter.embedded.InfinispanCacheConfigurer;
+import org.infinispan.spring.starter.embedded.InfinispanGlobalConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,18 +29,22 @@ public class SpringApp {
     private static final String CACHE_NAME = "sessions";
 
     @Bean
-    public SpringEmbeddedCacheManagerFactoryBean springCache() {
-        return new SpringEmbeddedCacheManagerFactoryBean();
+    public InfinispanCacheConfigurer cacheConfigurer() {
+        return manager -> {
+            Configuration ispnConfig = new ConfigurationBuilder()
+                    .clustering().cacheMode(CacheMode.REPL_SYNC)
+                    .build();
+            manager.defineConfiguration(CACHE_NAME, ispnConfig);
+        };
     }
 
     @Bean
-    EmbeddedCacheManager embeddedCacheManager() {
-        GlobalConfiguration globalConfiguration = new GlobalConfigurationBuilder()
+    public InfinispanGlobalConfigurer globalConfiguration() {
+        return () -> GlobalConfigurationBuilder
+                .defaultClusteredBuilder()
                 .transport().defaultTransport()
                 .addProperty("configurationFile", "jgroups.xml")
                 .build();
-        Configuration configuration = new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).build();
-        return new DefaultCacheManager(globalConfiguration, configuration);
     }
 
     @RestController

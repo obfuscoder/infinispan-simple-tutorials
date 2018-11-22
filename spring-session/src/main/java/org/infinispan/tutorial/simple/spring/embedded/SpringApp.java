@@ -57,15 +57,17 @@ public class SpringApp {
 
         @RequestMapping("/session")
         public Map<String, String> session(HttpServletRequest request) {
-            new Random();
+            Random random = new Random();
             Map<String, String> result = new HashMap<>();
             String sessionId = request.getSession(true).getId();
             result.put("created:", sessionId);
             result.put("caches:" , cacheManager.getCacheNames().stream().collect(Collectors.joining(",")));
             SpringCache cache = cacheManager.getCache(CACHE_NAME);
-            byte[] data = new byte[2^16];
-            random.nextBytes(data)
-            cache.put(UUID.randomUUID(), data);
+            for (int i=0; i<1000; i++) {
+                byte[] data = new byte[2 ^ 16];
+                random.nextBytes(data);
+                cache.put(UUID.randomUUID().toString(), data);
+            }
             BasicCache<?, ?> nativeCache = cache.getNativeCache();
             result.put("active:", String.valueOf(nativeCache.size()));
             return result;

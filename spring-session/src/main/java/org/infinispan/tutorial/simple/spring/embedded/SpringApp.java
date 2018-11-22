@@ -2,6 +2,8 @@ package org.infinispan.tutorial.simple.spring.embedded;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,11 +57,15 @@ public class SpringApp {
 
         @RequestMapping("/session")
         public Map<String, String> session(HttpServletRequest request) {
+            new Random();
             Map<String, String> result = new HashMap<>();
             String sessionId = request.getSession(true).getId();
             result.put("created:", sessionId);
             result.put("caches:" , cacheManager.getCacheNames().stream().collect(Collectors.joining(",")));
             SpringCache cache = cacheManager.getCache(CACHE_NAME);
+            byte[] data = new byte[2^16];
+            random.nextBytes(data)
+            cache.put(UUID.randomUUID(), data);
             BasicCache<?, ?> nativeCache = cache.getNativeCache();
             result.put("active:", String.valueOf(nativeCache.size()));
             return result;

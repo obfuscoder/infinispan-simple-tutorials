@@ -37,8 +37,10 @@ public class SpringApp {
 
     @Bean
     EmbeddedCacheManager embeddedCacheManager() {
-        GlobalConfiguration globalConfiguration = new GlobalConfigurationBuilder().transport().defaultTransport()
-                .addProperty("configurationFile", "jgroups.xml").build();
+        GlobalConfiguration globalConfiguration = new GlobalConfigurationBuilder()
+                .transport().defaultTransport()
+                .addProperty("configurationFile", "jgroups.xml")
+                .build();
         Configuration configuration = new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).build();
         return new DefaultCacheManager(globalConfiguration, configuration);
     }

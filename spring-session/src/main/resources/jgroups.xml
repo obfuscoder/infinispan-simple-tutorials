@@ -13,13 +13,10 @@
         thread_pool.max_threads="${jgroups.thread_pool.max_threads:200}"
         thread_pool.keep_alive_time="60000"
    />
-   <MPING bind_addr="${jgroups.tcp.address:SITE_LOCAL}"
-          mcast_addr="239.42.13.37"
-          mcast_port="${jgroups.mping.mcast_port:43366}"
-          ip_ttl="${jgroups.udp.ip_ttl:2}" 
+   <TCPPING initial_hosts="10.20.32.39[7800],10.20.33.104[7800]"
+            port_range="1"
    />
-   <MERGE3 min_interval="10000" 
-           max_interval="30000" 
+   <MERGE3 min_interval="10000" max_interval="30000"
    />
    <FD_SOCK />
    <!-- Suspect node `timeout` to `timeout + timeout_check_interval` millis after the last heartbeat -->
